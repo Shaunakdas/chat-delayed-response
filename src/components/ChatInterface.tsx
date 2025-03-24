@@ -14,6 +14,12 @@ interface Message {
   timestamp: string;
 }
 
+interface ExaSearchResult {
+  text: string;
+  url?: string;
+  title?: string;
+}
+
 const ChatInterface: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -26,21 +32,49 @@ const ChatInterface: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const generateResponse = (question: string): string => {
-    // Generate a response based on the user's question
-    // This could be more sophisticated in a real application
-    const responses = [
-      `I understand your question about "${question}". Here's what I think...`,
-      `Thanks for asking about "${question}". Let me explain...`,
-      `Regarding "${question}", the answer is quite interesting...`,
-      `"${question}" is an excellent question. Here's my perspective...`,
-      `I've analyzed "${question}" and can offer this insight...`,
-    ];
-    
-    return responses[Math.floor(Math.random() * responses.length)];
+  const searchExaApi = async (query: string): Promise<string> => {
+    try {
+      const response = await fetch('https://api.exa.ai/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ef7768c2-a7f3-45f2-a633-33f81d3eb775'
+        },
+        body: JSON.stringify({
+          query: query,
+          type: "neural",
+          contents: {
+            text: true
+          }
+        })
+      });
+
+      if (!response.ok) {
+        console.error('API error:', response.status);
+        return `I'm sorry, I couldn't find information about "${query}". Would you like to try a different question?`;
+      }
+
+      const data = await response.json();
+      console.log('Exa API response:', data);
+      
+      if (data.results && data.results.length > 0) {
+        // Format the response using the results
+        const topResults = data.results.slice(0, 3);
+        const formattedResults = topResults.map((result: ExaSearchResult, index: number) => 
+          `Result ${index + 1}: ${result.text}`
+        ).join('\n\n');
+        
+        return `Here's what I found about "${query}":\n\n${formattedResults}`;
+      } else {
+        return `I couldn't find specific information about "${query}". Would you like to try a different search?`;
+      }
+    } catch (error) {
+      console.error('Error calling Exa API:', error);
+      return `I encountered an error while searching for "${query}". Please try again later.`;
+    }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!input.trim() || isProcessing) return;
     
     const trimmedInput = input.trim();
@@ -58,8 +92,8 @@ const ChatInterface: React.FC = () => {
     setInput('');
     setIsProcessing(true);
     
-    // Generate the response but don't show it yet
-    const response = generateResponse(trimmedInput);
+    // Call Exa API to get a response
+    const response = await searchExaApi(trimmedInput);
     setExpectedResponse(response);
   };
 
