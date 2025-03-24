@@ -101,7 +101,7 @@ const ChatInterface: React.FC = () => {
             </div>
             <h3 className="text-xl font-medium mb-2">Start a conversation</h3>
             <p className="text-muted-foreground">
-              Send a message and receive a response after 9 seconds.
+              Send a message and see our 3-step processing in action.
             </p>
           </div>
         ) : (
@@ -119,6 +119,7 @@ const ChatInterface: React.FC = () => {
               <DelayedResponse 
                 message={expectedResponse} 
                 onComplete={handleResponseComplete}
+                stepDelay={2000}
               >
                 {(response) => response ? null : null}
               </DelayedResponse>
