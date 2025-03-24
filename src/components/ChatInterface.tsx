@@ -88,11 +88,7 @@ const ChatInterface: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full w-full max-w-2xl mx-auto overflow-hidden rounded-2xl bg-background shadow-lg border animate-scale-in">
-      <div className="flex items-center justify-center p-4 border-b glass-effect">
-        <h2 className="text-lg font-medium">Chat with Delayed Response</h2>
-      </div>
-      
+    <div className="flex flex-col h-screen w-full bg-background">
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-8">
@@ -129,7 +125,7 @@ const ChatInterface: React.FC = () => {
         )}
       </div>
       
-      <div className="p-4 border-t glass-effect">
+      <div className="p-4 border-t">
         <div className="flex space-x-2">
           <Input
             value={input}
